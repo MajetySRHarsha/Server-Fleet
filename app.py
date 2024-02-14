@@ -1,6 +1,8 @@
-from flask import Flask, request
+import json
+from flask import Flask, jsonify, request
 import pickle
 import pandas as pd
+from banksInterest import calculate_interest_bank, data
 
 app = Flask(__name__)
 
@@ -60,6 +62,20 @@ def index():
             print(prediction)
             return prediction[0]
             
+        except Exception as e:
+            print('The Exception message is: ',e)
+            return 'something is wrong'
+
+
+@app.route('/calculate-interest',methods=['POST','GET'])
+def calculate_interest():
+    if request.method == 'POST':
+        try:
+            request_data= request.get_json()
+            result= dict()
+            for bank in list(data.keys()):
+                result[bank] =calculate_interest_bank(request_data.get('loan_amount'),request_data.get('time'),bank)
+            return result
         except Exception as e:
             print('The Exception message is: ',e)
             return 'something is wrong'
