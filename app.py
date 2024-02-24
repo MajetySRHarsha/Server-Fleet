@@ -1,11 +1,12 @@
 import json
 from flask import Flask, jsonify, request
+from flask_cors import CORS,cross_origin
 import pickle
 import pandas as pd
 from banksInterest import calculate_interest_bank, data
 
 app = Flask(__name__)
-
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 filename = 'model.pickle'
 sample_row = [
     2,  # no_of_dependents: Example person has 2 dependents
@@ -38,6 +39,7 @@ def hello():
     return prediction[0]
 
 @app.route('/risk-status',methods=['POST','GET'])
+@cross_origin()
 def index():
     if request.method == 'POST':
         try:
@@ -60,7 +62,7 @@ def index():
             sample_df = pd.DataFrame([request_payload], columns=features)
             prediction = loaded_model.predict(sample_df)
             print(prediction)
-            return prediction[0]
+            return str(prediction[0])
             
         except Exception as e:
             print('The Exception message is: ',e)
